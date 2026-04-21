@@ -1,0 +1,3070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winner Saving Group</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <style>
+        :root {
+            --primary: #2a5c2d;
+            --primary-light: #3a7a3e;
+            --secondary: #f9a826;
+            --dark: #1a3c1d;
+            --light: #f8f9fa;
+            --danger: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --gray: #6c757d;
+            --border: #dee2e6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        /* Loading Animation */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+        
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        #loading-screen h2 {
+            color: white;
+            margin-top: 20px;
+            font-size: 1.8rem;
+        }
+        
+        /* Login Page */
+        #login-page, #admin-login {
+            display: none;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            padding: 20px;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 80px auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        .app-logo {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .login-form h2 {
+            margin-bottom: 25px;
+            color: var(--dark);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .btn-secondary {
+            background-color: var(--gray);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: #333;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .login-footer {
+            margin-top: 25px;
+            font-size: 14px;
+            color: #777;
+        }
+        
+        .login-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* Main App */
+        #app-container {
+            display: none;
+        }
+        
+        /* Header */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .app-title {
+            display: flex;
+            align-items: center;
+        }
+        
+        .app-title h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-left: 10px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .date-time {
+            margin-right: 20px;
+            text-align: right;
+        }
+        
+        .current-date, .current-time {
+            font-size: 0.9rem;
+        }
+        
+        .current-date {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .current-time {
+            color: var(--gray);
+        }
+        
+        .logout-btn {
+            background-color: var(--danger);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        /* Navigation */
+        nav {
+            background-color: var(--dark);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            padding: 15px 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-links i {
+            margin-right: 8px;
+        }
+        
+        .nav-links .active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .admin-access {
+            padding: 15px 20px;
+        }
+        
+        .admin-access a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        /* Dashboard */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .card-icon.success {
+            background-color: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+        }
+        
+        .card-icon.warning {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+        
+        .card-icon.primary {
+            background-color: rgba(42, 92, 45, 0.1);
+            color: var(--primary);
+        }
+        
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .card-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* Rotation Display */
+        .rotation-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .rotation-title {
+            font-size: 1.2rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+        
+        .rotation-list {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            padding-bottom: 10px;
+        }
+        
+        .rotation-member {
+            min-width: 150px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid transparent;
+            position: relative;
+        }
+        
+        .rotation-member.current {
+            border-color: var(--secondary);
+            background-color: rgba(249, 168, 38, 0.1);
+        }
+        
+        .rotation-member.pinned {
+            border-color: var(--primary);
+            background-color: rgba(42, 92, 45, 0.1);
+        }
+        
+        .rotation-member.past {
+            opacity: 0.7;
+        }
+        
+        .member-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .rotation-week {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .pin-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: var(--primary);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+        
+        /* Motivation Quotes */
+        .quotes-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .quote {
+            font-style: italic;
+            color: var(--dark);
+            text-align: center;
+            font-size: 1.1rem;
+            padding: 15px;
+            border-left: 4px solid var(--secondary);
+            background-color: #fcf8e3;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        /* Admin Panel */
+        .admin-panel {
+            display: none;
+        }
+        
+        .admin-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .action-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .action-title {
+            font-size: 1.2rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+        
+        /* Members Table */
+        .members-table-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-paid {
+            background-color: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+        }
+        
+        .status-pending {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+        
+        .status-fine {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+        
+        /* Ledger */
+        .ledger-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+        
+        /* Notifications */
+        .notifications-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .notification {
+            padding: 15px;
+            border-left: 4px solid var(--primary);
+            background-color: #f8f9fa;
+            margin-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .notification.unread {
+            background-color: #e8f4fd;
+            border-left-color: #3498db;
+        }
+        
+        .notification.reminder {
+            background-color: #fff8e1;
+            border-left-color: var(--warning);
+        }
+        
+        /* FAQ & Help */
+        .faq-container, .help-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .faq-item {
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+        }
+        
+        .faq-question {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-answer {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .help-contact {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-color: rgba(42, 92, 45, 0.1);
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .help-contact i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-right: 15px;
+        }
+        
+        .help-info h3 {
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--border);
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        /* Admin Settings Panel */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .settings-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .settings-card h3 {
+            font-size: 1.2rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .danger-zone {
+            border: 2px solid var(--danger);
+            background-color: rgba(231, 76, 60, 0.05);
+        }
+        
+        .danger-zone h3 {
+            color: var(--danger);
+        }
+        
+        .backup-zone {
+            border: 2px solid var(--success);
+            background-color: rgba(39, 174, 96, 0.05);
+        }
+        
+        .backup-zone h3 {
+            color: var(--success);
+        }
+        
+        .settings-zone {
+            border: 2px solid var(--primary);
+            background-color: rgba(42, 92, 45, 0.05);
+        }
+        
+        .settings-zone h3 {
+            color: var(--primary);
+        }
+        
+        .pin-week-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .designer-credit {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .modal-footer {
+            margin-top: 25px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .user-info {
+                margin-top: 15px;
+            }
+            
+            .nav-container {
+                flex-direction: column;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .admin-access {
+                text-align: center;
+                padding-top: 0;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-actions, .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader"></div>
+        <h2>Winner Saving Group</h2>
+        <p style="color: white; margin-top: 10px;">Loading your savings journey...</p>
+    </div>
+    
+    <!-- Member Login Page -->
+    <div id="login-page">
+        <div class="login-container">
+            <div class="app-logo">
+                <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <div class="login-form">
+                <h2>Member Login</h2>
+                <p style="margin-bottom: 20px; color: var(--gray);">Enter your phone number to access your savings account</p>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" class="form-control" placeholder="Enter your phone number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="member-password">Password (Last 5 digits of phone)</label>
+                    <input type="password" id="member-password" class="form-control" placeholder="Enter last 5 digits of phone">
+                </div>
+                
+                <button class="btn" id="member-login-btn">Login</button>
+                
+                <div class="login-footer">
+                    <p>Not a member? <a href="#" id="request-join-link">Request to join</a></p>
+                    <p>Admin? <a href="#" id="admin-login-link">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Login Page -->
+    <div id="admin-login">
+        <div class="login-container">
+            <div class="app-logo">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <div class="login-form">
+                <h2>Admin Login</h2>
+                <p style="margin-bottom: 20px; color: var(--gray);">Enter admin password to access management panel</p>
+                
+                <div class="form-group">
+                    <label for="admin-password">Admin Password</label>
+                    <input type="password" id="admin-password" class="form-control" placeholder="Enter admin password">
+                </div>
+                
+                <button class="btn" id="admin-login-btn">Login as Admin</button>
+                
+                <div class="login-footer">
+                    <p>Member? <a href="#" id="member-login-link">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Join Request Form -->
+    <div id="join-request-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Request to Join Winner Saving Group</h2>
+                <button class="close-modal" id="cancel-request-btn">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="request-name">Full Name</label>
+                <input type="text" id="request-name" class="form-control" placeholder="Enter your full name">
+            </div>
+            
+            <div class="form-group">
+                <label for="request-phone">Phone Number</label>
+                <input type="tel" id="request-phone" class="form-control" placeholder="Enter your phone number">
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn" id="submit-request-btn">Submit Request</button>
+                <button class="btn btn-secondary" id="cancel-request-btn2">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reset Confirmation Modal -->
+    <div id="reset-confirm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirm Reset</h2>
+                <button class="close-modal" id="close-reset-modal">&times;</button>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <p><strong>Warning:</strong> This action cannot be undone!</p>
+                <p>Resetting will:</p>
+                <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.6;">
+                    <li>Remove all members</li>
+                    <li>Clear all transactions from ledger</li>
+                    <li>Delete all notifications</li>
+                    <li>Clear rotation schedule</li>
+                    <li>Remove all join requests</li>
+                </ul>
+                <p style="margin-top: 15px; color: var(--danger); font-weight: bold;">Only the admin password will be preserved.</p>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="confirm-reset-btn">Confirm Reset</button>
+                <button class="btn btn-secondary" id="cancel-reset-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reminder Modal -->
+    <div id="reminder-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Send Reminder</h2>
+                <button class="close-modal" id="close-reminder-modal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="reminder-type">Reminder Type</label>
+                <select id="reminder-type" class="form-control">
+                    <option value="all">All Members</option>
+                    <option value="unpaid">Unpaid Members Only</option>
+                    <option value="specific">Specific Member</option>
+                    <option value="weekly">Weekly Receiver</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="specific-member-group" style="display: none;">
+                <label for="reminder-member">Select Member</label>
+                <select id="reminder-member" class="form-control">
+                    <option value="">Select a member</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="reminder-message">Reminder Message</label>
+                <textarea id="reminder-message" class="form-control" rows="4" placeholder="Enter reminder message..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="reminder-frequency">Send Frequency</label>
+                <select id="reminder-frequency" class="form-control">
+                    <option value="once">Once Now</option>
+                    <option value="daily">Daily at 8 PM</option>
+                    <option value="weekly">Weekly on Monday</option>
+                </select>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-warning" id="send-reminder-btn">Send Reminder</button>
+                <button class="btn btn-secondary" id="cancel-reminder-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main App Container -->
+    <div id="app-container">
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <div class="app-title">
+                    <i class="fas fa-hand-holding-usd" style="color: var(--primary); font-size: 1.8rem;"></i>
+                    <h1>Winner Saving Group</h1>
+                </div>
+                
+                <div class="user-info">
+                    <div class="date-time">
+                        <div class="current-date" id="current-date"></div>
+                        <div class="current-time" id="current-time"></div>
+                    </div>
+                    <div class="logout-btn" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Navigation -->
+        <nav>
+            <div class="nav-container">
+                <ul class="nav-links">
+                    <li><a href="#" class="nav-link active" data-section="dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="#" class="nav-link" data-section="rotation"><i class="fas fa-sync-alt"></i> Rotation</a></li>
+                    <li><a href="#" class="nav-link" data-section="ledger"><i class="fas fa-book"></i> Ledger</a></li>
+                    <li><a href="#" class="nav-link" data-section="notifications"><i class="fas fa-bell"></i> Notifications</a></li>
+                    <li><a href="#" class="nav-link" data-section="faq"><i class="fas fa-question-circle"></i> FAQ</a></li>
+                    <li><a href="#" class="nav-link" data-section="help"><i class="fas fa-headset"></i> Help Center</a></li>
+                </ul>
+                
+                <div class="admin-access">
+                    <a href="#" id="admin-panel-link"><i class="fas fa-user-shield"></i> Admin Panel</a>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main>
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section">
+                <h2 class="section-title">Dashboard</h2>
+                
+                <!-- Stats Cards -->
+                <div class="stats-cards">
+                    <div class="card">
+                        <div class="card-icon success">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="card-value" id="total-members">0</div>
+                        <div class="card-label">Total Members</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-icon warning">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="card-value" id="current-week">Week 1</div>
+                        <div class="card-label">Current Rotation Week</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-icon primary">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="card-value" id="total-savings">UGX 0</div>
+                        <div class="card-label">Total Group Savings</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-icon warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="-card-value" id="pending-payments">0</div>
+                        <div class="card-label">Pending Payments Today</div>
+                    </div>
+                </div>
+                
+                <!-- Weekly Receiver Highlight -->
+                <div class="rotation-container" id="weekly-receiver-highlight" style="display: none;">
+                    <h3 class="rotation-title">
+                        <i class="fas fa-thumbtack" style="color: var(--primary); margin-right: 8px;"></i>
+                        This Week's Receiver (Pinned)
+                    </h3>
+                    <div id="pinned-receiver-display">
+                        <!-- Pinned receiver will be shown here -->
+                    </div>
+                </div>
+                
+                <!-- Rotation Display -->
+                <div class="rotation-container">
+                    <h3 class="rotation-title">Current Rotation</h3>
+                    <div class="rotation-list" id="rotation-list">
+                        <!-- Empty state for rotation -->
+                        <div class="empty-state" style="width: 100%; padding: 30px;">
+                            <i class="fas fa-users-slash"></i>
+                            <h3>No Members Yet</h3>
+                            <p>Start by adding members through the Admin Panel</p>
+                            <p style="margin-top: 10px;"><small>Admin password: "123 frank"</small></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Motivation Quotes -->
+                <div class="quotes-container">
+                    <h3 class="section-title">Motivation for Saving</h3>
+                    <div class="quote" id="daily-quote">
+                        "Do not save what is left after spending, but spend what is left after saving." - Warren Buffett
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Rotation Section -->
+            <section id="rotation-section" class="content-section" style="display: none;">
+                <h2 class="section-title">Rotation Schedule</h2>
+                
+                <div class="rotation-container">
+                    <p>Each member receives the weekly pool based on the rotation schedule below:</p>
+                    
+                    <div style="margin-top: 20px;">
+                        <h3 style="margin-bottom: 15px;">Rotation Rules:</h3>
+                        <ul style="list-style-position: inside; line-height: 1.8;">
+                            <li>Each member saves <strong>UGX 2,500</strong> daily</li>
+                            <li>Failure to pay incurs an automatic fine of <strong>UGX 500</strong></li>
+                            <li>Rotation changes every week</li>
+                            <li>One member receives the weekly pool each week</li>
+                            <li>Admin can pin a specific week's receiver</li>
+                            <li>Admin can adjust rotation order as needed</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-top: 30px; overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Week</th>
+                                    <th>Member</th>
+                                    <th>Amount Received</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rotation-table">
+                                <!-- Empty state for rotation table -->
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 30px;">
+                                        <div class="empty-state" style="padding: 20px;">
+                                            <i class="fas fa-users-slash"></i>
+                                            <h3>No Rotation Schedule Yet</h3>
+                                            <p>Rotation schedule will appear once members are added</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Ledger Section -->
+            <section id="ledger-section" class="content-section" style="display: none;">
+                <h2 class="section-title">Savings Ledger</h2>
+                
+                <div class="ledger-container">
+                    <p>Complete record of all transactions in the group</p>
+                    
+                    <div style="margin-top: 20px; overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Member</th>
+                                    <th>Transaction</th>
+                                    <th>Amount (UGX)</th>
+                                    <th>Balance (UGX)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledger-table">
+                                <!-- Empty state for ledger -->
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 30px;">
+                                        <div class="empty-state" style="padding: 20px;">
+                                            <i class="fas fa-book"></i>
+                                            <h3>No Transactions Yet</h3>
+                                            <p>Transaction ledger will appear once members start saving</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Notifications Section -->
+            <section id="notifications-section" class="content-section" style="display: none;">
+                <h2 class="section-title">Notifications & Reminders</h2>
+                
+                <div class="notifications-container" id="notifications-list">
+                    <!-- Empty state for notifications -->
+                    <div class="empty-state" style="padding: 30px;">
+                        <i class="fas fa-bell-slash"></i>
+                        <h3>No Notifications</h3>
+                        <p>Notifications will appear here for payments, fines, and group updates</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- FAQ Section -->
+            <section id="faq-section" class="content-section" style="display: none;">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+                
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>How does the Winner Saving Group work?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer" style="display: none;">
+                            <p>Each member saves UGX 2,500 daily. Each week, one member receives the entire weekly pool. Rotation order is predetermined and visible to all members. Fines of UGX 500 are automatically applied for missed payments.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>How do I make my daily payment?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer" style="display: none;">
+                            <p>Payments are made directly to the group's mobile money account. The admin will provide payment details. Payments should be made by 10 PM daily to avoid fines.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>What happens if I miss a payment?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer" style="display: none;">
+                            <p>If you miss a daily payment, an automatic fine of UGX 500 is added to your account. You must pay both the missed savings and fine before your rotation week.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>How can I join the group?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer" style="display: none;">
+                            <p>Click "Request to Join" on the login page. The admin will review your request and approve if there's space. Once approved, you'll receive login details.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>How is the rotation order determined?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer" style="display: none;">
+                            <p>The rotation order is initially set by the admin based on joining date or other fair criteria. It can be adjusted by the admin if needed, with notification to all members.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>How do I access my account?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer" style="display: none;">
+                            <p>Use your phone number and the last 5 digits of your phone number as password. For example, if your phone is 0755123456, your password is 23456.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Help Center Section -->
+            <section id="help-section" class="content-section" style="display: none;">
+                <h2 class="section-title">Help Center</h2>
+                
+                <div class="help-container">
+                    <p>Need assistance? Contact our support team directly:</p>
+                    
+                    <div class="help-contact">
+                        <i class="fas fa-headset"></i>
+                        <div class="help-info">
+                            <h3>FJM Technologies UG</h3>
+                            <p>Call or WhatsApp: <strong>0754 358 524</strong></p>
+                            <p>Email: support@fjmtechnologies.ug</p>
+                            <p>Available: Monday - Saturday, 8 AM - 6 PM</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <h3 style="margin-bottom: 15px;">Quick Support Options:</h3>
+                        <ul style="list-style-position: inside; line-height: 1.8;">
+                            <li>Call the number above for immediate assistance</li>
+                            <li>Send a WhatsApp message with your issue</li>
+                            <li>Visit our office in Kampala (details available upon request)</li>
+                            <li>Report technical issues through the admin</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Admin Panel -->
+            <section id="admin-section" class="content-section admin-panel">
+                <h2 class="section-title">Admin Panel</h2>
+                
+                <!-- Admin Actions -->
+                <div class="admin-actions">
+                    <div class="action-card">
+                        <h3 class="action-title">Add New Member</h3>
+                        <div class="form-group">
+                            <label for="new-member-name">Full Name</label>
+                            <input type="text" id="new-member-name" class="form-control" placeholder="Enter full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-member-phone">Phone Number</label>
+                            <input type="tel" id="new-member-phone" class="form-control" placeholder="Enter phone number">
+                        </div>
+                        <button class="btn" id="add-member-btn">Add Member</button>
+                    </div>
+                    
+                    <div class="action-card">
+                        <h3 class="action-title">Process Payment</h3>
+                        <div class="form-group">
+                            <label for="payment-member">Select Member</label>
+                            <select id="payment-member" class="form-control">
+                                <option value="">No members yet</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="payment-amount">Amount (UGX)</label>
+                            <input type="number" id="payment-amount" class="form-control" value="2500" min="2500">
+                        </div>
+                        <button class="btn" id="process-payment-btn">Mark as Paid</button>
+                    </div>
+                    
+                    <div class="action-card">
+                        <h3 class="action-title">Reminders</h3>
+                        <p style="margin-bottom: 15px; color: var(--gray);">Send reminders to members</p>
+                        <button class="btn btn-warning" id="send-reminder-trigger">
+                            <i class="fas fa-bell"></i> Send Reminder
+                        </button>
+                        
+                        <div style="margin-top: 15px;">
+                            <p style="font-size: 0.9rem; color: var(--gray);">
+                                <i class="fas fa-info-circle"></i> Send payment reminders to members
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Admin Settings Section -->
+                <div class="settings-grid">
+                    <div class="settings-card settings-zone">
+                        <h3>Admin Settings</h3>
+                        
+                        <div class="form-group">
+                            <label for="admin-password-change">Change Admin Password</label>
+                            <input type="password" id="admin-password-change" class="form-control" placeholder="New password">
+                        </div>
+                        <button class="btn" id="change-password-btn">Change Password</button>
+                        
+                        <div class="pin-week-section">
+                            <h4 style="margin-bottom: 10px;">Pin Week Receiver</h4>
+                            <div class="form-group">
+                                <label for="pin-week-select">Select Week to Pin</label>
+                                <select id="pin-week-select" class="form-control">
+                                    <option value="">Select week</option>
+                                </select>
+                            </div>
+                            <button class="btn" id="pin-week-btn">
+                                <i class="fas fa-thumbtack"></i> Pin Receiver
+                            </button>
+                            <button class="btn btn-secondary" id="unpin-week-btn" style="margin-top: 10px;">
+                                <i class="fas fa-times"></i> Unpin Receiver
+                            </button>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-secondary" id="adjust-rotation-btn">Adjust Rotation Order</button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-card backup-zone">
+                        <h3>Backup & Restore</h3>
+                        <p style="margin-bottom: 15px; color: var(--gray);">Backup your data or restore from a previous backup</p>
+                        
+                        <button class="btn" id="backup-data-btn">
+                            <i class="fas fa-download"></i> Backup Data
+                        </button>
+                        
+                        <div style="margin-top: 15px;">
+                            <div class="form-group">
+                                <label for="restore-file">Restore from Backup</label>
+                                <input type="file" id="restore-file" class="form-control" accept=".json">
+                            </div>
+                            <button class="btn" id="restore-data-btn">
+                                <i class="fas fa-upload"></i> Restore Data
+                            </button>
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+                            <p style="font-size: 0.9rem; color: var(--gray);">
+                                <i class="fas fa-info-circle"></i> Last backup: <span id="last-backup-date">Never</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-card danger-zone">
+                        <h3>Danger Zone</h3>
+                        <p style="margin-bottom: 15px; color: var(--gray);">Critical actions that cannot be undone</p>
+                        
+                        <button class="btn btn-danger" id="reset-data-btn">
+                            <i class="fas fa-trash"></i> Reset All Data
+                        </button>
+                        
+                        <div style="margin-top: 20px;">
+                            <p style="font-size: 0.9rem; color: var(--danger);">
+                                <i class="fas fa-exclamation-triangle"></i> Warning: Resetting will delete all data except admin password
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pending Join Requests -->
+                <div class="members-table-container" style="margin-top: 30px;">
+                    <h3 class="section-title">Pending Join Requests</h3>
+                    
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Request Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="join-requests-table">
+                                <!-- Empty state for join requests -->
+                                <tr>
+                                    <td colspan="4" style="text-align: center; padding: 30px;">
+                                        <div class="empty-state" style="padding: 20px;">
+                                            <i class="fas fa-inbox"></i>
+                                            <h3>No Join Requests</h3>
+                                            <p>Join requests from potential members will appear here</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Members Management -->
+                <div class="members-table-container">
+                    <h3 class="section-title">All Members</h3>
+                    
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Total Saved (UGX)</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-members-table">
+                                <!-- Empty state for members -->
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 30px;">
+                                        <div class="empty-state" style="padding: 20px;">
+                                            <i class="fas fa-users-slash"></i>
+                                            <h3>No Members Yet</h3>
+                                            <p>Start by adding members using the form above</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <p>Winner Saving Group - Empowering communities through collective savings</p>
+                <p>Daily Savings: UGX 2,500 | Fine for Missed Payment: UGX 500</p>
+                <div class="designer-credit">
+                    <p>Designed and Developed by <strong>@fjm technologies ug (frank junior)</strong></p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // App Data Storage - Starting with ZERO members
+        let appData = {
+            members: [], // EMPTY - No demo members
+            rotation: [], // EMPTY - Will be populated when members are added
+            ledger: [], // EMPTY - No transactions yet
+            notifications: [
+                // Initial welcome notification
+                {
+                    id: 1,
+                    message: "Welcome to Winner Saving Group! Start by adding members through the Admin Panel.",
+                    date: new Date().toISOString(),
+                    read: false,
+                    type: "info"
+                }
+            ],
+            joinRequests: [], // EMPTY - No join requests yet
+            currentWeek: 1,
+            adminPassword: "123 frank", // Default admin password
+            pinnedWeek: null, // Track pinned week receiver
+            lastBackup: null, // Track last backup date
+            activeReminders: [], // Track active reminders
+            motivationQuotes: [
+                "Do not save what is left after spending, but spend what is left after saving. - Warren Buffett",
+                "A penny saved is a penny earned. - Benjamin Franklin",
+                "The habit of saving is itself an education; it fosters every virtue, teaches self-denial, cultivates the sense of order, trains to forethought, and so broadens the mind. - T.T. Munger",
+                "Saving is a great habit but investing is better. Start saving early in life. - Rakesh Jhunjhunwala",
+                "Wealth consists not in having great possessions, but in having few wants. - Epictetus",
+                "Financial freedom is available to those who learn about it and work for it. - Robert Kiyosaki",
+                "The safest way to double your money is to fold it over and put it in your pocket. - Kin Hubbard",
+                "Beware of little expenses; a small leak will sink a great ship. - Benjamin Franklin",
+                "It's not your salary that makes you rich, it's your spending habits. - Charles A. Jaffe",
+                "The way to wealth is as plain as the way to market. It depends chiefly on two words: industry and frugality. - Benjamin Franklin"
+            ],
+            currentQuoteIndex: 0
+        };
+
+        // Current user state
+        let currentUser = null;
+        let isAdmin = false;
+
+        // DOM Elements
+        const loadingScreen = document.getElementById('loading-screen');
+        const loginPage = document.getElementById('login-page');
+        const adminLoginPage = document.getElementById('admin-login');
+        const appContainer = document.getElementById('app-container');
+        const memberLoginBtn = document.getElementById('member-login-btn');
+        const adminLoginBtn = document.getElementById('admin-login-btn');
+        const adminLoginLink = document.getElementById('admin-login-link');
+        const memberLoginLink = document.getElementById('member-login-link');
+        const logoutBtn = document.getElementById('logout-btn');
+        const requestJoinLink = document.getElementById('request-join-link');
+        const joinRequestModal = document.getElementById('join-request-modal');
+        const submitRequestBtn = document.getElementById('submit-request-btn');
+        const cancelRequestBtn = document.getElementById('cancel-request-btn');
+        const cancelRequestBtn2 = document.getElementById('cancel-request-btn2');
+        const adminPanelLink = document.getElementById('admin-panel-link');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const contentSections = document.querySelectorAll('.content-section');
+        const adminSection = document.getElementById('admin-section');
+        
+        // Modals
+        const resetConfirmModal = document.getElementById('reset-confirm-modal');
+        const closeResetModal = document.getElementById('close-reset-modal');
+        const confirmResetBtn = document.getElementById('confirm-reset-btn');
+        const cancelResetBtn = document.getElementById('cancel-reset-btn');
+        
+        const reminderModal = document.getElementById('reminder-modal');
+        const closeReminderModal = document.getElementById('close-reminder-modal');
+        const sendReminderTrigger = document.getElementById('send-reminder-trigger');
+        const reminderTypeSelect = document.getElementById('reminder-type');
+        const specificMemberGroup = document.getElementById('specific-member-group');
+        const reminderMemberSelect = document.getElementById('reminder-member');
+        const sendReminderBtn = document.getElementById('send-reminder-btn');
+        const cancelReminderBtn = document.getElementById('cancel-reminder-btn');
+        
+        // Admin buttons
+        const resetDataBtn = document.getElementById('reset-data-btn');
+        const backupDataBtn = document.getElementById('backup-data-btn');
+        const restoreDataBtn = document.getElementById('restore-data-btn');
+        const restoreFileInput = document.getElementById('restore-file');
+        const pinWeekBtn = document.getElementById('pin-week-btn');
+        const unpinWeekBtn = document.getElementById('unpin-week-btn');
+        const pinWeekSelect = document.getElementById('pin-week-select');
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate loading delay
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    showLoginPage();
+                }, 500);
+            }, 2000);
+            
+            // Initialize date and time
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Load saved data from localStorage
+            loadAppData();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Set up initial quote
+            updateDailyQuote();
+            
+            // Start reminder scheduler
+            startReminderScheduler();
+        });
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            const dateElement = document.getElementById('current-date');
+            const timeElement = document.getElementById('current-time');
+            
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateElement.textContent = now.toLocaleDateString('en-US', options);
+            timeElement.textContent = now.toLocaleTimeString('en-US');
+        }
+
+        // Update daily motivation quote
+        function updateDailyQuote() {
+            const quoteElement = document.getElementById('daily-quote');
+            appData.currentQuoteIndex = (appData.currentQuoteIndex + 1) % appData.motivationQuotes.length;
+            quoteElement.textContent = appData.motivationQuotes[appData.currentQuoteIndex];
+            
+            // Change quote every 15 seconds
+            setTimeout(updateDailyQuote, 15000);
+        }
+
+        // Load app data from localStorage
+        function loadAppData() {
+            const savedData = localStorage.getItem('winnerSavingGroupData');
+            if (savedData) {
+                appData = JSON.parse(savedData);
+            }
+            
+            // Ensure required fields exist
+            if (!appData.adminPassword) {
+                appData.adminPassword = "123 frank";
+            }
+            if (!appData.pinnedWeek) {
+                appData.pinnedWeek = null;
+            }
+            if (!appData.activeReminders) {
+                appData.activeReminders = [];
+            }
+            if (!appData.lastBackup) {
+                appData.lastBackup = null;
+            }
+            
+            updateDashboard();
+            updateRotationDisplay();
+            updateLedgerTable();
+            updateNotifications();
+            updateMembersTable();
+            updateJoinRequestsTable();
+            updatePinWeekSelect();
+            updateLastBackupDate();
+            updatePinnedReceiverDisplay();
+        }
+
+        // Save app data to localStorage
+        function saveAppData() {
+            localStorage.setItem('winnerSavingGroupData', JSON.stringify(appData));
+        }
+
+        // Update dashboard with current data
+        function updateDashboard() {
+            // Update total members
+            document.getElementById('total-members').textContent = appData.members.length;
+            
+            // Update current week
+            document.getElementById('current-week').textContent = `Week ${appData.currentWeek}`;
+            
+            // Calculate total savings
+            const totalSavings = appData.members.reduce((total, member) => total + member.savings, 0);
+            document.getElementById('total-savings').textContent = `UGX ${totalSavings.toLocaleString()}`;
+            
+            // Calculate pending payments
+            const pendingPayments = appData.members.filter(member => member.status !== 'paid').length;
+            document.getElementById('pending-payments').textContent = pendingPayments;
+            
+            // Update rotation list
+            updateRotationDisplay();
+            
+            // Update pinned receiver display
+            updatePinnedReceiverDisplay();
+        }
+
+        // Update pinned receiver display
+        function updatePinnedReceiverDisplay() {
+            const pinnedDisplay = document.getElementById('pinned-receiver-display');
+            const weeklyReceiverSection = document.getElementById('weekly-receiver-highlight');
+            
+            if (appData.pinnedWeek && appData.rotation.length > 0) {
+                const pinnedRotation = appData.rotation.find(r => r.week === appData.pinnedWeek);
+                if (pinnedRotation) {
+                    weeklyReceiverSection.style.display = 'block';
+                    pinnedDisplay.innerHTML = `
+                        <div class="rotation-member pinned" style="max-width: 300px; margin: 0 auto;">
+                            <div class="pin-badge"><i class="fas fa-thumbtack"></i></div>
+                            <div class="member-name">${pinnedRotation.memberName}</div>
+                            <div class="rotation-week">Week ${pinnedRotation.week}</div>
+                            <div style="margin-top: 10px; font-size: 0.9rem;">
+                                <strong>Amount to Receive:</strong> UGX ${(appData.members.length * 17500).toLocaleString()}
+                            </div>
+                            <div style="margin-top: 5px; font-size: 0.8rem; color: var(--gray);">
+                                <i class="fas fa-info-circle"></i> This week's receiver is pinned
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    weeklyReceiverSection.style.display = 'none';
+                }
+            } else {
+                weeklyReceiverSection.style.display = 'none';
+            }
+        }
+
+        // Update rotation display
+        function updateRotationDisplay() {
+            const rotationList = document.getElementById('rotation-list');
+            const rotationTable = document.getElementById('rotation-table');
+            
+            rotationList.innerHTML = '';
+            rotationTable.innerHTML = '';
+            
+            if (appData.rotation.length === 0) {
+                // Show empty state for rotation
+                rotationList.innerHTML = `
+                    <div class="empty-state" style="width: 100%; padding: 30px;">
+                        <i class="fas fa-users-slash"></i>
+                        <h3>No Rotation Schedule Yet</h3>
+                        <p>Add members through the Admin Panel to create a rotation schedule</p>
+                    </div>
+                `;
+                
+                rotationTable.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 30px;">
+                            <div class="empty-state" style="padding: 20px;">
+                                <i class="fas fa-users-slash"></i>
+                                <h3>No Rotation Schedule Yet</h3>
+                                <p>Rotation schedule will appear once members are added</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            appData.rotation.forEach(item => {
+                // Create rotation display item
+                const rotationItem = document.createElement('div');
+                rotationItem.className = `rotation-member ${item.status} ${appData.pinnedWeek === item.week ? 'pinned' : ''}`;
+                
+                let pinBadge = '';
+                if (appData.pinnedWeek === item.week) {
+                    pinBadge = '<div class="pin-badge"><i class="fas fa-thumbtack"></i></div>';
+                }
+                
+                rotationItem.innerHTML = `
+                    ${pinBadge}
+                    <div class="member-name">${item.memberName}</div>
+                    <div class="rotation-week">Week ${item.week}</div>
+                    <div class="rotation-amount">${item.amount > 0 ? `UGX ${item.amount.toLocaleString()}` : 'Pending'}</div>
+                `;
+                
+                rotationList.appendChild(rotationItem);
+                
+                // Create rotation table row
+                const tableRow = document.createElement('tr');
+                
+                let statusBadge = '';
+                if (item.status === 'completed') {
+                    statusBadge = '<span class="status-badge status-paid">Completed</span>';
+                } else if (item.status === 'current') {
+                    statusBadge = '<span class="status-badge status-pending">Current</span>';
+                } else {
+                    statusBadge = '<span class="status-badge">Upcoming</span>';
+                }
+                
+                let pinButton = '';
+                if (appData.pinnedWeek === item.week) {
+                    pinButton = `<button class="btn" style="padding: 5px 10px; font-size: 0.8rem; background-color: var(--primary);" onclick="unpinWeek(${item.week})">
+                        <i class="fas fa-times"></i> Unpin
+                    </button>`;
+                } else {
+                    pinButton = `<button class="btn" style="padding: 5px 10px; font-size: 0.8rem;" onclick="pinWeek(${item.week})">
+                        <i class="fas fa-thumbtack"></i> Pin
+                    </button>`;
+                }
+                
+                tableRow.innerHTML = `
+                    <td>Week ${item.week}</td>
+                    <td>${item.memberName}</td>
+                    <td>${item.amount > 0 ? `UGX ${item.amount.toLocaleString()}` : 'Pending'}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        ${pinButton}
+                    </td>
+                `;
+                
+                rotationTable.appendChild(tableRow);
+            });
+        }
+
+        // Update ledger table
+        function updateLedgerTable() {
+            const ledgerTable = document.getElementById('ledger-table');
+            ledgerTable.innerHTML = '';
+            
+            if (appData.ledger.length === 0) {
+                // Show empty state for ledger
+                ledgerTable.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 30px;">
+                            <div class="empty-state" style="padding: 20px;">
+                                <i class="fas fa-book"></i>
+                                <h3>No Transactions Yet</h3>
+                                <p>Transaction ledger will appear once members start saving</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            appData.ledger.forEach(entry => {
+                const row = document.createElement('tr');
+                
+                // Format date
+                const date = new Date(entry.date);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                
+                // Determine amount color
+                const amountClass = entry.amount < 0 ? 'style="color: var(--danger);"' : 'style="color: var(--success);"';
+                const amountDisplay = entry.amount < 0 ? `-UGX ${Math.abs(entry.amount).toLocaleString()}` : `UGX ${entry.amount.toLocaleString()}`;
+                
+                row.innerHTML = `
+                    <td>${formattedDate}</td>
+                    <td>${entry.member}</td>
+                    <td>${entry.transaction}</td>
+                    <td ${amountClass}>${amountDisplay}</td>
+                    <td>UGX ${entry.balance.toLocaleString()}</td>
+                `;
+                
+                ledgerTable.appendChild(row);
+            });
+        }
+
+        // Update notifications
+        function updateNotifications() {
+            const notificationsList = document.getElementById('notifications-list');
+            notificationsList.innerHTML = '';
+            
+            if (appData.notifications.length === 0) {
+                // Show empty state for notifications
+                notificationsList.innerHTML = `
+                    <div class="empty-state" style="padding: 30px;">
+                        <i class="fas fa-bell-slash"></i>
+                        <h3>No Notifications</h3>
+                        <p>Notifications will appear here for payments, fines, and group updates</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            appData.notifications.forEach(notification => {
+                const notificationElement = document.createElement('div');
+                notificationElement.className = `notification ${notification.read ? '' : 'unread'} ${notification.type === 'reminder' ? 'reminder' : ''}`;
+                
+                // Format date
+                const date = new Date(notification.date);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                notificationElement.innerHTML = `
+                    <p>${notification.message}</p>
+                    <small>${formattedDate}</small>
+                `;
+                
+                notificationsList.appendChild(notificationElement);
+            });
+        }
+
+        // Update members table in admin panel
+        function updateMembersTable() {
+            const membersTable = document.getElementById('admin-members-table');
+            const paymentMemberSelect = document.getElementById('payment-member');
+            const reminderMemberSelect = document.getElementById('reminder-member');
+            
+            membersTable.innerHTML = '';
+            paymentMemberSelect.innerHTML = '<option value="">Select a member</option>';
+            reminderMemberSelect.innerHTML = '<option value="">Select a member</option>';
+            
+            if (appData.members.length === 0) {
+                // Show empty state for members
+                membersTable.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 30px;">
+                            <div class="empty-state" style="padding: 20px;">
+                                <i class="fas fa-users-slash"></i>
+                                <h3>No Members Yet</h3>
+                                <p>Start by adding members using the form above</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            appData.members.forEach(member => {
+                // Add to table
+                const row = document.createElement('tr');
+                
+                let statusBadge = '';
+                if (member.status === 'paid') {
+                    statusBadge = '<span class="status-badge status-paid">Paid Today</span>';
+                } else if (member.status === 'pending') {
+                    statusBadge = '<span class="status-badge status-pending">Pending</span>';
+                } else {
+                    statusBadge = '<span class="status-badge status-fine">Fine Applied</span>';
+                }
+                
+                row.innerHTML = `
+                    <td>${member.name}</td>
+                    <td>${member.phone}</td>
+                    <td>UGX ${member.savings.toLocaleString()}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;" onclick="removeMember(${member.id})">Remove</button>
+                    </td>
+                `;
+                
+                membersTable.appendChild(row);
+                
+                // Add to payment select dropdown
+                const option = document.createElement('option');
+                option.value = member.id;
+                option.textContent = `${member.name} (${member.phone})`;
+                paymentMemberSelect.appendChild(option);
+                
+                // Add to reminder select dropdown
+                const reminderOption = document.createElement('option');
+                reminderOption.value = member.id;
+                reminderOption.textContent = `${member.name} (${member.phone})`;
+                reminderMemberSelect.appendChild(reminderOption);
+            });
+        }
+
+        // Update join requests table
+        function updateJoinRequestsTable() {
+            const joinRequestsTable = document.getElementById('join-requests-table');
+            joinRequestsTable.innerHTML = '';
+            
+            if (appData.joinRequests.length === 0) {
+                // Show empty state for join requests
+                joinRequestsTable.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 30px;">
+                            <div class="empty-state" style="padding: 20px;">
+                                <i class="fas fa-inbox"></i>
+                                <h3>No Join Requests</h3>
+                                <p>Join requests from potential members will appear here</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            appData.joinRequests.forEach(request => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${request.name}</td>
+                    <td>${request.phone}</td>
+                    <td>${request.date}</td>
+                    <td>
+                        <button class="btn" style="padding: 5px 10px; font-size: 0.8rem; margin-right: 5px;" onclick="approveRequest(${request.id})">Approve</button>
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="rejectRequest(${request.id})">Reject</button>
+                    </td>
+                `;
+                
+                joinRequestsTable.appendChild(row);
+            });
+        }
+
+        // Update pin week select dropdown
+        function updatePinWeekSelect() {
+            pinWeekSelect.innerHTML = '<option value="">Select week</option>';
+            
+            if (appData.rotation.length === 0) return;
+            
+            appData.rotation.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.week;
+                option.textContent = `Week ${item.week}: ${item.memberName}`;
+                pinWeekSelect.appendChild(option);
+            });
+            
+            // Select current pinned week if exists
+            if (appData.pinnedWeek) {
+                pinWeekSelect.value = appData.pinnedWeek;
+            }
+        }
+
+        // Update last backup date display
+        function updateLastBackupDate() {
+            const lastBackupElement = document.getElementById('last-backup-date');
+            if (appData.lastBackup) {
+                const date = new Date(appData.lastBackup);
+                lastBackupElement.textContent = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            } else {
+                lastBackupElement.textContent = 'Never';
+            }
+        }
+
+        // Show login page
+        function showLoginPage() {
+            loginPage.style.display = 'block';
+            adminLoginPage.style.display = 'none';
+            appContainer.style.display = 'none';
+        }
+
+        // Show admin login page
+        function showAdminLoginPage() {
+            loginPage.style.display = 'none';
+            adminLoginPage.style.display = 'block';
+            appContainer.style.display = 'none';
+        }
+
+        // Show main app
+        function showApp(isAdminUser = false) {
+            loginPage.style.display = 'none';
+            adminLoginPage.style.display = 'none';
+            appContainer.style.display = 'block';
+            
+            isAdmin = isAdminUser;
+            
+            // If admin, show admin panel link
+            if (isAdmin) {
+                adminPanelLink.style.display = 'block';
+            } else {
+                adminPanelLink.style.display = 'none';
+            }
+            
+            // Update all displays
+            updateDashboard();
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Member login
+            memberLoginBtn.addEventListener('click', function() {
+                const phone = document.getElementById('phone').value.trim();
+                const password = document.getElementById('member-password').value.trim();
+                
+                if (!phone || !password) {
+                    alert('Please enter your phone number and password');
+                    return;
+                }
+                
+                // Check if member exists
+                const member = appData.members.find(m => m.phone === phone);
+                
+                if (member && password === phone.slice(-5)) {
+                    currentUser = member;
+                    showApp(false);
+                    showSection('dashboard-section');
+                } else {
+                    alert('Invalid login credentials. Please check your phone number and password.');
+                }
+            });
+            
+            // Admin login
+            adminLoginBtn.addEventListener('click', function() {
+                const password = document.getElementById('admin-password').value.trim();
+                
+                if (password === appData.adminPassword) {
+                    currentUser = { name: "Admin", isAdmin: true };
+                    showApp(true);
+                    showSection('dashboard-section');
+                } else {
+                    alert('Incorrect admin password');
+                }
+            });
+            
+            // Switch to admin login
+            adminLoginLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                showAdminLoginPage();
+            });
+            
+            // Switch to member login
+            memberLoginLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                showLoginPage();
+            });
+            
+            // Logout
+            logoutBtn.addEventListener('click', function() {
+                currentUser = null;
+                showLoginPage();
+            });
+            
+            // Request to join link
+            requestJoinLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                joinRequestModal.style.display = 'flex';
+            });
+            
+            // Submit join request
+            submitRequestBtn.addEventListener('click', function() {
+                const name = document.getElementById('request-name').value.trim();
+                const phone = document.getElementById('request-phone').value.trim();
+                
+                if (!name || !phone) {
+                    alert('Please enter your name and phone number');
+                    return;
+                }
+                
+                // Validate phone number format
+                if (!phone.match(/^[0-9]{10}$/)) {
+                    alert('Please enter a valid 10-digit phone number');
+                    return;
+                }
+                
+                // Check if member already exists
+                if (appData.members.some(m => m.phone === phone)) {
+                    alert('A member with this phone number already exists');
+                    return;
+                }
+                
+                // Check if join request already exists
+                if (appData.joinRequests.some(r => r.phone === phone)) {
+                    alert('You already have a pending join request');
+                    return;
+                }
+                
+                // Create new join request
+                const newRequest = {
+                    id: appData.joinRequests.length + 1,
+                    name: name,
+                    phone: phone,
+                    date: new Date().toISOString().split('T')[0]
+                };
+                
+                appData.joinRequests.push(newRequest);
+                saveAppData();
+                updateJoinRequestsTable();
+                
+                // Add notification for admin
+                appData.notifications.unshift({
+                    id: appData.notifications.length + 1,
+                    message: `New join request from ${name} (${phone})`,
+                    date: new Date().toISOString(),
+                    read: false,
+                    type: "info"
+                });
+                
+                // Close modal and show success message
+                joinRequestModal.style.display = 'none';
+                document.getElementById('request-name').value = '';
+                document.getElementById('request-phone').value = '';
+                
+                alert('Join request submitted successfully! The admin will review your request.');
+            });
+            
+            // Cancel join request
+            cancelRequestBtn.addEventListener('click', function() {
+                joinRequestModal.style.display = 'none';
+                document.getElementById('request-name').value = '';
+                document.getElementById('request-phone').value = '';
+            });
+            
+            cancelRequestBtn2.addEventListener('click', function() {
+                joinRequestModal.style.display = 'none';
+                document.getElementById('request-name').value = '';
+                document.getElementById('request-phone').value = '';
+            });
+            
+            // Navigation links
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Show corresponding section
+                    const sectionId = this.getAttribute('data-section') + '-section';
+                    showSection(sectionId);
+                });
+            });
+            
+            // Admin panel link
+            adminPanelLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Show admin section
+                showSection('admin-section');
+                
+                // Update nav active state
+                navLinks.forEach(l => l.classList.remove('active'));
+            });
+            
+            // Add member button
+            document.getElementById('add-member-btn').addEventListener('click', function() {
+                const name = document.getElementById('new-member-name').value.trim();
+                const phone = document.getElementById('new-member-phone').value.trim();
+                
+                if (!name || !phone) {
+                    alert('Please enter member name and phone number');
+                    return;
+                }
+                
+                // Validate phone number format
+                if (!phone.match(/^[0-9]{10}$/)) {
+                    alert('Please enter a valid 10-digit phone number');
+                    return;
+                }
+                
+                // Check if member already exists
+                if (appData.members.some(m => m.phone === phone)) {
+                    alert('A member with this phone number already exists');
+                    return;
+                }
+                
+                // Add new member
+                const newMember = {
+                    id: appData.members.length + 1,
+                    name: name,
+                    phone: phone,
+                    savings: 0,
+                    lastPayment: null,
+                    status: 'pending'
+                };
+                
+                appData.members.push(newMember);
+                
+                // Add to rotation
+                const nextWeek = appData.rotation.length + 1;
+                appData.rotation.push({
+                    week: nextWeek,
+                    memberId: newMember.id,
+                    memberName: newMember.name,
+                    amount: 0,
+                    status: 'upcoming'
+                });
+                
+                // Update statuses
+                if (appData.rotation.length === 1) {
+                    appData.rotation[0].status = 'current';
+                }
+                
+                // Add notification
+                appData.notifications.unshift({
+                    id: appData.notifications.length + 1,
+                    message: `New member added: ${name}`,
+                    date: new Date().toISOString(),
+                    read: false,
+                    type: "info"
+                });
+                
+                // Add welcome ledger entry
+                appData.ledger.push({
+                    date: new Date().toISOString().split('T')[0],
+                    member: newMember.name,
+                    transaction: 'Account Created',
+                    amount: 0,
+                    balance: 0
+                });
+                
+                // Update displays and save
+                updateDashboard();
+                updateMembersTable();
+                updateLedgerTable();
+                updateNotifications();
+                updatePinWeekSelect();
+                saveAppData();
+                
+                // Clear form
+                document.getElementById('new-member-name').value = '';
+                document.getElementById('new-member-phone').value = '';
+                
+                alert(`Member ${name} added successfully! Their login password is the last 5 digits of their phone: ${phone.slice(-5)}`);
+            });
+            
+            // Process payment button
+            document.getElementById('process-payment-btn').addEventListener('click', function() {
+                const memberId = parseInt(document.getElementById('payment-member').value);
+                const amount = parseInt(document.getElementById('payment-amount').value);
+                
+                if (!memberId) {
+                    alert('Please select a member');
+                    return;
+                }
+                
+                const member = appData.members.find(m => m.id === memberId);
+                
+                if (!member) {
+                    alert('Member not found');
+                    return;
+                }
+                
+                // Update member savings
+                member.savings += amount;
+                member.lastPayment = new Date().toISOString().split('T')[0];
+                member.status = 'paid';
+                
+                // Add to ledger
+                appData.ledger.push({
+                    date: new Date().toISOString().split('T')[0],
+                    member: member.name,
+                    transaction: 'Daily Savings',
+                    amount: amount,
+                    balance: member.savings
+                });
+                
+                // Add notification
+                appData.notifications.unshift({
+                    id: appData.notifications.length + 1,
+                    message: `${member.name} has made a payment of UGX ${amount.toLocaleString()}`,
+                    date: new Date().toISOString(),
+                    read: false,
+                    type: "payment"
+                });
+                
+                // Update displays and save
+                updateDashboard();
+                updateMembersTable();
+                updateLedgerTable();
+                updateNotifications();
+                saveAppData();
+                
+                // Reset form
+                document.getElementById('payment-member').value = '';
+                document.getElementById('payment-amount').value = 2500;
+                
+                alert(`Payment of UGX ${amount.toLocaleString()} recorded for ${member.name}`);
+            });
+            
+            // Change admin password
+            document.getElementById('change-password-btn').addEventListener('click', function() {
+                const newPassword = document.getElementById('admin-password-change').value.trim();
+                
+                if (!newPassword) {
+                    alert('Please enter a new password');
+                    return;
+                }
+                
+                appData.adminPassword = newPassword;
+                saveAppData();
+                
+                document.getElementById('admin-password-change').value = '';
+                alert('Admin password changed successfully!');
+            });
+            
+            // Adjust rotation button
+            document.getElementById('adjust-rotation-btn').addEventListener('click', function() {
+                if (appData.rotation.length === 0) {
+                    alert('No members in rotation to adjust');
+                    return;
+                }
+                
+                // Rotate the order
+                const first = appData.rotation.shift();
+                appData.rotation.push(first);
+                
+                // Update statuses and weeks
+                appData.rotation.forEach((item, index) => {
+                    item.week = index + 1;
+                    if (index === 0) {
+                        item.status = 'current';
+                    } else if (index === 1) {
+                        item.status = 'upcoming';
+                    } else {
+                        item.status = 'pending';
+                    }
+                });
+                
+                // Clear pinned week if it exists
+                if (appData.pinnedWeek) {
+                    appData.pinnedWeek = null;
+                }
+                
+                // Add notification
+                appData.notifications.unshift({
+                    id: appData.notifications.length + 1,
+                    message: `Rotation order has been adjusted by admin`,
+                    date: new Date().toISOString(),
+                    read: false,
+                    type: "info"
+                });
+                
+                // Update displays and save
+                updateDashboard();
+                updateRotationDisplay();
+                updateNotifications();
+                updatePinWeekSelect();
+                saveAppData();
+                
+                alert('Rotation order adjusted!');
+            });
+            
+            // Reset data button
+            resetDataBtn.addEventListener('click', function() {
+                resetConfirmModal.style.display = 'flex';
+            });
+            
+            closeResetModal.addEventListener('click', function() {
+                resetConfirmModal.style.display = 'none';
+            });
+            
+            cancelResetBtn.addEventListener('click', function() {
+                resetConfirmModal.style.display = 'none';
+            });
+            
+            confirmResetBtn.addEventListener('click', function() {
+                resetAllData();
+                resetConfirmModal.style.display = 'none';
+            });
+            
+            // Backup data button
+            backupDataBtn.addEventListener('click', function() {
+                backupData();
+            });
+            
+            // Restore data button
+            restoreDataBtn.addEventListener('click', function() {
+                if (restoreFileInput.files.length === 0) {
+                    alert('Please select a backup file to restore');
+                    return;
+                }
+                
+                const file = restoreFileInput.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const backupData = JSON.parse(e.target.result);
+                        if (confirm('Restore from backup? This will overwrite current data.')) {
+                            restoreData(backupData);
+                        }
+                    } catch (error) {
+                        alert('Invalid backup file format');
+                    }
+                };
+                
+                reader.readAsText(file);
+            });
+            
+            // Pin week button
+            pinWeekBtn.addEventListener('click', function() {
+                const week = parseInt(pinWeekSelect.value);
+                if (!week) {
+                    alert('Please select a week to pin');
+                    return;
+                }
+                
+                pinWeek(week);
+            });
+            
+            // Unpin week button
+            unpinWeekBtn.addEventListener('click', function() {
+                unpinWeek();
+            });
+            
+            // Reminder type change
+            reminderTypeSelect.addEventListener('change', function() {
+                if (this.value === 'specific') {
+                    specificMemberGroup.style.display = 'block';
+                } else {
+                    specificMemberGroup.style.display = 'none';
+                }
+            });
+            
+            // Send reminder trigger
+            sendReminderTrigger.addEventListener('click', function() {
+                reminderModal.style.display = 'flex';
+                document.getElementById('reminder-message').value = '';
+                document.getElementById('reminder-frequency').value = 'once';
+                reminderTypeSelect.value = 'all';
+                specificMemberGroup.style.display = 'none';
+            });
+            
+            closeReminderModal.addEventListener('click', function() {
+                reminderModal.style.display = 'none';
+            });
+            
+            cancelReminderBtn.addEventListener('click', function() {
+                reminderModal.style.display = 'none';
+            });
+            
+            sendReminderBtn.addEventListener('click', function() {
+                sendReminder();
+            });
+            
+            // FAQ accordion
+            document.querySelectorAll('.faq-question').forEach(question => {
+                question.addEventListener('click', function() {
+                    const answer = this.nextElementSibling;
+                    const icon = this.querySelector('i');
+                    
+                    if (answer.style.display === 'block') {
+                        answer.style.display = 'none';
+                        icon.className = 'fas fa-chevron-down';
+                    } else {
+                        answer.style.display = 'block';
+                        icon.className = 'fas fa-chevron-up';
+                    }
+                });
+            });
+        }
+
+        // Show a specific section
+        function showSection(sectionId) {
+            // Hide all sections
+            contentSections.forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Hide admin panel if not admin
+            if (!isAdmin) {
+                adminSection.style.display = 'none';
+            }
+            
+            // Show requested section
+            const sectionToShow = document.getElementById(sectionId);
+            if (sectionToShow) {
+                sectionToShow.style.display = 'block';
+            }
+            
+            // If showing admin section, update admin tables
+            if (sectionId === 'admin-section' && isAdmin) {
+                updateMembersTable();
+                updateJoinRequestsTable();
+                updatePinWeekSelect();
+            }
+        }
+
+        // Remove a member (admin only)
+        function removeMember(memberId) {
+            if (!confirm('Are you sure you want to remove this member?')) {
+                return;
+            }
+            
+            const memberIndex = appData.members.findIndex(m => m.id === memberId);
+            
+            if (memberIndex !== -1) {
+                const memberName = appData.members[memberIndex].name;
+                
+                // Remove from members
+                appData.members.splice(memberIndex, 1);
+                
+                // Remove from rotation
+                const rotationIndex = appData.rotation.findIndex(r => r.memberId === memberId);
+                if (rotationIndex !== -1) {
+                    appData.rotation.splice(rotationIndex, 1);
+                }
+                
+                // Update rotation weeks
+                appData.rotation.forEach((item, index) => {
+                    item.week = index + 1;
+                });
+                
+                // Update statuses if needed
+                if (appData.rotation.length > 0) {
+                    appData.rotation[0].status = 'current';
+                    if (appData.rotation.length > 1) {
+                        appData.rotation[1].status = 'upcoming';
+                    }
+                }
+                
+                // Clear pinned week if removed member was pinned
+                if (appData.pinnedWeek) {
+                    const pinnedMember = appData.rotation.find(r => r.week === appData.pinnedWeek);
+                    if (!pinnedMember) {
+                        appData.pinnedWeek = null;
+                    }
+                }
+                
+                // Add notification
+                appData.notifications.unshift({
+                    id: appData.notifications.length + 1,
+                    message: `Member ${memberName} has been removed from the group`,
+                    date: new Date().toISOString(),
+                    read: false,
+                    type: "info"
+                });
+                
+                // Update displays and save
+                updateDashboard();
+                updateMembersTable();
+                updatePinWeekSelect();
+                saveAppData();
+                
+                alert(`Member ${memberName} removed successfully`);
+            }
+        }
+
+        // Approve a join request
+        function approveRequest(requestId) {
+            const requestIndex = appData.joinRequests.findIndex(r => r.id === requestId);
+            
+            if (requestIndex !== -1) {
+                const request = appData.joinRequests[requestIndex];
+                
+                // Add as new member
+                const newMember = {
+                    id: appData.members.length + 1,
+                    name: request.name,
+                    phone: request.phone,
+                    savings: 0,
+                    lastPayment: null,
+                    status: 'pending'
+                };
+                
+                appData.members.push(newMember);
+                
+                // Add to rotation
+                const nextWeek = appData.rotation.length + 1;
+                appData.rotation.push({
+                    week: nextWeek,
+                    memberId: newMember.id,
+                    memberName: newMember.name,
+                    amount: 0,
+                    status: 'upcoming'
+                });
+                
+                // Update statuses if this is the first member
+                if (appData.rotation.length === 1) {
+                    appData.rotation[0].status = 'current';
+                }
+                
+                // Remove from join requests
+                appData.joinRequests.splice(requestIndex, 1);
+                
+                // Add notification
+                appData.notifications.unshift({
+                    id: appData.notifications.length + 1,
+                    message: `Join request from ${request.name} has been approved. Their password is: ${request.phone.slice(-5)}`,
+                    date: new Date().toISOString(),
+                    read: false,
+                    type: "info"
+                });
+                
+                // Add welcome ledger entry
+                appData.ledger.push({
+                    date: new Date().toISOString().split('T')[0],
+                    member: newMember.name,
+                    transaction: 'Account Created (Approved Request)',
+                    amount: 0,
+                    balance: 0
+                });
+                
+                // Update displays and save
+                updateDashboard();
+                updateMembersTable();
+                updateJoinRequestsTable();
+                updateLedgerTable();
+                updateNotifications();
+                updatePinWeekSelect();
+                saveAppData();
+                
+                alert(`Join request from ${request.name} approved! Their login password is the last 5 digits of their phone: ${request.phone.slice(-5)}`);
+            }
+        }
+
+        // Reject a join request
+        function rejectRequest(requestId) {
+            if (!confirm('Are you sure you want to reject this join request?')) {
+                return;
+            }
+            
+            const requestIndex = appData.joinRequests.findIndex(r => r.id === requestId);
+            
+            if (requestIndex !== -1) {
+                const requestName = appData.joinRequests[requestIndex].name;
+                
+                // Remove from join requests
+                appData.joinRequests.splice(requestIndex, 1);
+                
+                // Add notification
+                appData.notifications.unshift({
+                    id: appData.notifications.length + 1,
+                    message: `Join request from ${requestName} has been rejected`,
+                    date: new Date().toISOString(),
+                    read: false,
+                    type: "info"
+                });
+                
+                // Update displays and save
+                updateJoinRequestsTable();
+                updateNotifications();
+                saveAppData();
+                
+                alert(`Join request from ${requestName} rejected`);
+            }
+        }
+
+        // Reset all data
+        function resetAllData() {
+            // Save admin password
+            const adminPassword = appData.adminPassword;
+            
+            // Reset all data except admin password
+            appData = {
+                members: [],
+                rotation: [],
+                ledger: [],
+                notifications: [{
+                    id: 1,
+                    message: "All data has been reset. Start fresh by adding members.",
+                    date: new Date().toISOString(),
+                    read: false,
+                    type: "info"
+                }],
+                joinRequests: [],
+                currentWeek: 1,
+                adminPassword: adminPassword,
+                pinnedWeek: null,
+                lastBackup: appData.lastBackup,
+                activeReminders: [],
+                motivationQuotes: appData.motivationQuotes,
+                currentQuoteIndex: 0
+            };
+            
+            // Update all displays
+            updateDashboard();
+            updateRotationDisplay();
+            updateLedgerTable();
+            updateNotifications();
+            updateMembersTable();
+            updateJoinRequestsTable();
+            updatePinWeekSelect();
+            updatePinnedReceiverDisplay();
+            saveAppData();
+            
+            alert('All data has been reset successfully!');
+        }
+
+        // Backup data
+        function backupData() {
+            // Update last backup date
+            appData.lastBackup = new Date().toISOString();
+            
+            // Create backup object
+            const backup = {
+                ...appData,
+                backupDate: new Date().toISOString(),
+                backupVersion: "1.0"
+            };
+            
+            // Create download link
+            const dataStr = JSON.stringify(backup, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `winner-saving-group-backup-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            // Update last backup display and save
+            updateLastBackupDate();
+            saveAppData();
+            
+            alert(`Backup created successfully! File: ${exportFileDefaultName}`);
+        }
+
+        // Restore data from backup
+        function restoreData(backupData) {
+            // Validate backup data structure
+            if (!backupData.members || !backupData.rotation || !backupData.adminPassword) {
+                alert('Invalid backup file format');
+                return;
+            }
+            
+            // Restore data
+            appData = {
+                ...backupData,
+                lastBackup: new Date().toISOString()
+            };
+            
+            // Add restore notification
+            appData.notifications.unshift({
+                id: appData.notifications.length + 1,
+                message: `Data restored from backup ${backupData.backupDate ? `(${new Date(backupData.backupDate).toLocaleDateString()})` : ''}`,
+                date: new Date().toISOString(),
+                read: false,
+                type: "info"
+            });
+            
+            // Update all displays
+            updateDashboard();
+            updateRotationDisplay();
+            updateLedgerTable();
+            updateNotifications();
+            updateMembersTable();
+            updateJoinRequestsTable();
+            updatePinWeekSelect();
+            updateLastBackupDate();
+            updatePinnedReceiverDisplay();
+            saveAppData();
+            
+            alert('Data restored successfully from backup!');
+        }
+
+        // Pin a specific week
+        function pinWeek(week) {
+            appData.pinnedWeek = week;
+            
+            // Add notification
+            const pinnedRotation = appData.rotation.find(r => r.week === week);
+            if (pinnedRotation) {
+                appData.notifications.unshift({
+                    id: appData.notifications.length + 1,
+                    message: `Week ${week} (${pinnedRotation.memberName}) has been pinned as the weekly receiver`,
+                    date: new Date().toISOString(),
+                    read: false,
+                    type: "info"
+                });
+            }
+            
+            // Update displays and save
+            updateDashboard();
+            updateRotationDisplay();
+            updateNotifications();
+            updatePinWeekSelect();
+            saveAppData();
+            
+            alert(`Week ${week} has been pinned as the weekly receiver`);
+        }
+
+        // Unpin week
+        function unpinWeek() {
+            if (!appData.pinnedWeek) {
+                alert('No week is currently pinned');
+                return;
+            }
+            
+            const week = appData.pinnedWeek;
+            appData.pinnedWeek = null;
+            
+            // Add notification
+            appData.notifications.unshift({
+                id: appData.notifications.length + 1,
+                message: `Week ${week} has been unpinned`,
+                date: new Date().toISOString(),
+                read: false,
+                type: "info"
+            });
+            
+            // Update displays and save
+            updateDashboard();
+            updateRotationDisplay();
+            updateNotifications();
+            updatePinWeekSelect();
+            saveAppData();
+            
+            alert(`Week ${week} has been unpinned`);
+        }
+
+        // Send reminder
+        function sendReminder() {
+            const reminderType = reminderTypeSelect.value;
+            const message = document.getElementById('reminder-message').value.trim();
+            const frequency = document.getElementById('reminder-frequency').value;
+            const specificMemberId = reminderType === 'specific' ? parseInt(reminderMemberSelect.value) : null;
+            
+            if (!message) {
+                alert('Please enter a reminder message');
+                return;
+            }
+            
+            let reminderMessage = '';
+            let targetMembers = [];
+            
+            // Determine target members
+            if (reminderType === 'all') {
+                targetMembers = appData.members;
+                reminderMessage = `REMINDER TO ALL MEMBERS: ${message}`;
+            } else if (reminderType === 'unpaid') {
+                targetMembers = appData.members.filter(m => m.status !== 'paid');
+                reminderMessage = `REMINDER TO UNPAID MEMBERS: ${message}`;
+            } else if (reminderType === 'specific') {
+                if (!specificMemberId) {
+                    alert('Please select a member');
+                    return;
+                }
+                const member = appData.members.find(m => m.id === specificMemberId);
+                if (member) {
+                    targetMembers = [member];
+                    reminderMessage = `REMINDER TO ${member.name}: ${message}`;
+                }
+            } else if (reminderType === 'weekly') {
+                const currentRotation = appData.rotation.find(r => r.status === 'current');
+                if (currentRotation) {
+                    const member = appData.members.find(m => m.id === currentRotation.memberId);
+                    if (member) {
+                        targetMembers = [member];
+                        reminderMessage = `REMINDER TO WEEKLY RECEIVER (${member.name}): ${message}`;
+                    }
+                }
+            }
+            
+            if (targetMembers.length === 0) {
+                alert('No members match the selected criteria');
+                return;
+            }
+            
+            // Add notification
+            appData.notifications.unshift({
+                id: appData.notifications.length + 1,
+                message: reminderMessage,
+                date: new Date().toISOString(),
+                read: false,
+                type: "reminder"
+            });
+            
+            // If frequency is not "once", schedule the reminder
+            if (frequency !== 'once') {
+                const reminder = {
+                    id: appData.activeReminders.length + 1,
+                    type: reminderType,
+                    message: message,
+                    frequency: frequency,
+                    specificMemberId: specificMemberId,
+                    lastSent: new Date().toISOString(),
+                    active: true
+                };
+                
+                appData.activeReminders.push(reminder);
+            }
+            
+            // Update displays and save
+            updateNotifications();
+            saveAppData();
+            
+            // Close modal
+            reminderModal.style.display = 'none';
+            
+            alert(`Reminder sent to ${targetMembers.length} member(s)`);
+        }
+
+        // Start reminder scheduler
+        function startReminderScheduler() {
+            // Check for reminders every minute
+            setInterval(checkScheduledReminders, 60000);
+            
+            // Initial check
+            checkScheduledReminders();
+        }
+
+        // Check scheduled reminders
+        function checkScheduledReminders() {
+            if (appData.activeReminders.length === 0) return;
+            
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday
+            
+            appData.activeReminders.forEach(reminder => {
+                if (!reminder.active) return;
+                
+                const lastSent = new Date(reminder.lastSent);
+                const hoursSinceLastSent = (now - lastSent) / (1000 * 60 * 60);
+                
+                let shouldSend = false;
+                
+                if (reminder.frequency === 'daily') {
+                    // Send daily at 8 PM (20:00)
+                    if (currentHour === 20 && hoursSinceLastSent >= 24) {
+                        shouldSend = true;
+                    }
+                } else if (reminder.frequency === 'weekly') {
+                    // Send weekly on Monday at 8 AM
+                    if (currentDay === 1 && currentHour === 8 && hoursSinceLastSent >= 168) {
+                        shouldSend = true;
+                    }
+                }
+                
+                if (shouldSend) {
+                    sendScheduledReminder(reminder);
+                    reminder.lastSent = now.toISOString();
+                }
+            });
+            
+            // Save if any reminders were sent
+            if (appData.activeReminders.some(r => r.active)) {
+                saveAppData();
+            }
+        }
+
+        // Send scheduled reminder
+        function sendScheduledReminder(reminder) {
+            let reminderMessage = '';
+            let targetMembers = [];
+            
+            // Determine target members
+            if (reminder.type === 'all') {
+                targetMembers = appData.members;
+                reminderMessage = `SCHEDULED REMINDER TO ALL MEMBERS: ${reminder.message}`;
+            } else if (reminder.type === 'unpaid') {
+                targetMembers = appData.members.filter(m => m.status !== 'paid');
+                reminderMessage = `SCHEDULED REMINDER TO UNPAID MEMBERS: ${reminder.message}`;
+            } else if (reminder.type === 'specific') {
+                const member = appData.members.find(m => m.id === reminder.specificMemberId);
+                if (member) {
+                    targetMembers = [member];
+                    reminderMessage = `SCHEDULED REMINDER TO ${member.name}: ${reminder.message}`;
+                }
+            } else if (reminder.type === 'weekly') {
+                const currentRotation = appData.rotation.find(r => r.status === 'current');
+                if (currentRotation) {
+                    const member = appData.members.find(m => m.id === currentRotation.memberId);
+                    if (member) {
+                        targetMembers = [member];
+                        reminderMessage = `SCHEDULED REMINDER TO WEEKLY RECEIVER (${member.name}): ${reminder.message}`;
+                    }
+                }
+            }
+            
+            if (targetMembers.length === 0) return;
+            
+            // Add notification
+            appData.notifications.unshift({
+                id: appData.notifications.length + 1,
+                message: reminderMessage,
+                date: new Date().toISOString(),
+                read: false,
+                type: "reminder"
+            });
+            
+            updateNotifications();
+        }
+
+        // Auto-update function to check for unpaid members and apply fines
+        function autoUpdatePayments() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            appData.members.forEach(member => {
+                // Skip if no last payment recorded (new member)
+                if (!member.lastPayment) return;
+                
+                // If member hasn't paid today and it's a new day
+                if (member.lastPayment !== today && member.status !== 'fine') {
+                    // Apply fine
+                    member.savings += 500; // Fine amount
+                    member.status = 'fine';
+                    
+                    // Add to ledger
+                    appData.ledger.push({
+                        date: today,
+                        member: member.name,
+                        transaction: 'Late Fine',
+                        amount: 500,
+                        balance: member.savings
+                    });
+                    
+                    // Add notification
+                    appData.notifications.unshift({
+                        id: appData.notifications.length + 1,
+                        message: `${member.name} has not paid today. Fine of UGX 500 applied`,
+                        date: new Date().toISOString(),
+                        read: false,
+                        type: "fine"
+                    });
+                }
+            });
+            
+            // Save updated data
+            saveAppData();
+            updateDashboard();
+            updateMembersTable();
+            updateLedgerTable();
+            updateNotifications();
+        }
+
+        // Run auto-update every 5 minutes (for real usage)
+        setInterval(autoUpdatePayments, 300000);
+        
+        // Initial auto-update check
+        setTimeout(autoUpdatePayments, 5000);
+    </script>
+</body>
+</html>
